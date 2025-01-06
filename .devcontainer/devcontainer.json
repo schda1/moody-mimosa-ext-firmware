@@ -1,0 +1,39 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.183.0/containers/ubuntu
+{
+  "name": "Tiny Tapeout Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--memory=10GB",
+    "--env", "DISPLAY=host.docker.internal:0",  // Set DISPLAY for X11 forwarding to the Windows host
+    "-v", "/tmp/.X11-unix:/tmp/.X11-unix"     // Mount X11 socket
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-toolsai.jupyter",
+        "mhutchie.git-graph",
+        "donjayamanne.githistory",  
+        "marus25.cortex-debug",
+        "marus25.cortex-debug-dp-stm32l4",
+        "xaver.clang-format"
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "azureDnsAutoDetection": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "none"
+    }
+  }
+}
