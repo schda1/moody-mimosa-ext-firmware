@@ -1,8 +1,17 @@
 # Background
 
-In order to test and reconstruct the internal mimosa behaviour, I use an additional microcontroller to continously read the input and output pins of the ASIC (ui_in, uo_out etc). It also provides the clock signal (configurable via UART) and allows to reset the ASIC. Its main responsibility is to provide a consistent data set of all read pin values via UART. 
+An external PCB with an on-board microcontroller is used in order to interface with the tiny tapeout ASIC. The microcontroller is responsible for the following tasks:
 
-The receiver (laptop, PyQt application) feeds the data into the PyVerilator simulation and thus allows to get full insight into the internal, hidden information such as neurotransmitter levels or emotion and to log data. Moreover, the logged data allows to directly compare the ASIC behaviour with the intended behaviour, as simulated with the PyVerilator package. 
+- Select the appropriate tiny-tapeout project through the [3-pin MUX interface](https://www.youtube.com/watch?v=30emLKLpq50&list=PLyynFETmdQDQvd8uO3NWkBZLYGDu6Mr5M&index=1) by Sylvain Munaut 3-pin interface. 
+- Provide the clock signal and reset logic for the ASIC
+- Provide the comparator analog levels (for defining dark, bright, loud, hot etc.)
+- Receive UART data streamed by the mimosa project (the mimosa talks by reading data from an external FRAM and sending the data via UART)
+- Display data from the mimosa to an I2C LCD display (did not fit onto the ASIC)
+- Read out all in- and outputs from the mimosa and send them to the host computer via UART (for simulation and testing)
+- Pre-load the FRAM with phrases for the mimosa to read
+- Allowing to permanently store parameters (such as clock frequency, analog comparator values, etc) at the end of the flash
+- Provide a interface for communication (custom commands from the host computer via UART)
+
 
 #  Firmware
 Since I had a [nucleo with a STM32G474RE](https://www.st.com/en/evaluation-tools/nucleo-g474re.html) in a handy LQFP64 at hand, I decided to use this microcontroller, even though it is clearly overpowered for the task at hand. 
@@ -14,9 +23,9 @@ There are tons of options how to actually set up the application for the microco
 3. [Platform-IO](https://platformio.org/): Developing an application for a nucleo board, with e.g. an Arduino-like "framework".
 4. Setting up the application with STM32CubeMX (exporting with Makefile) but independently developing it inside VS Code and using the arm-none-aebi-gcc compiler. You can also debug it from VSCode, even you work inside WSL.
 
-I ruled out option 1 and 3. I also decided not to set up a Zephyr application, mainly because I did not want to blow up the Dockercontainer with [installing the Zephyr SDK](https://github.com/zephyrproject-rtos/docker-image) and keep the procedure comprehensible for a larger audience not familiar with e.g. device trees. Instead, I decided to initially set up the application with STM32CubeMX and then develop the application independently from within VSCode. The driver files are now available from ST on [github](https://github.com/STMicroelectronics/STM32CubeG4) and I thus added them as a git submodule. In this way, the build process can be automated without violating license agreements. The arm gcc compiler is installed in the Dockerfile, so no additional manual steps are needed.
+I decided to perform an experiment and try to develop a standalone C++ application with components that are testable. As a test framework, I chose CppUTest. I wrote minimalistic wrapper classes for the main peripherals (GPIO, I2C, UART, SPI, PWM etc). They allow to quickly instantiate the corresponding peripherals in the main application or use derived mocks thereof in unit tests. However, there is a lot of boiler-plate overhead and a so much room for improvements.
 
-In order to build the firmware, just type `make` or e.g. `make -j16` to run several jobs in parallel. 
+In order to build the firmware, just type `make` or e.g. `make -j16` to run several jobs in parallel. Building with CMake is not yet added. 
 
 # CppUTest
 
