@@ -21,7 +21,17 @@
 #include <MimosaDriver.hpp>
 #include <MessageParser.hpp>
 #include <ComparatorDriver.hpp>
+#include <TtProjectSelector.hpp>
 #include <MimosaSpeechDisplay.hpp>
+
+/* Tiny tapeout project selection */
+#define TT_MIMPOA_PRJ     (0)        /* To be defined, not yet assigned */
+#define TT_SEL_RST_N_PORT (GPIOF)
+#define TT_SEL_RST_N_PIN  (0)
+#define TT_SEL_INC_PORT   (GPIOF)
+#define TT_SEL_INC_PIN    (1)
+#define TT_ENA_PORT       (GPIOA)
+#define TT_ENA_PIN        (15)
 
 /* Uart peripherals */
 #define MAIN_UART   (LPUART1)
@@ -98,6 +108,12 @@ const Command command_table[] = {
 static void process_message(Msg* msg);
 static void input_config_fct(GPIO_TypeDef* port, uint8_t pin);
 
+/* Tiny tapeout project selection */
+DigitalOutput tt_sel_rst_n(TT_SEL_RST_N_PORT, TT_SEL_RST_N_PIN);
+DigitalOutput tt_sel_inc(TT_SEL_INC_PORT, TT_SEL_INC_PIN);
+DigitalOutput tt_ena(TT_ENA_PORT, TT_ENA_PIN);
+TtProjectSelector tt_project_selector(&tt_sel_rst_n, &tt_sel_inc, &tt_ena);
+
 /* Uart for communicating with host computer via FTDI*/
 Uart uart(MAIN_UART);
 MessageParser parser(&uart);
@@ -143,6 +159,10 @@ void app_init(void)
 {
     /* Externally define uart used for printf function */
     hlpuart1 = uart.get_handle();
+
+    /* Tiny tapeout project selection */
+    tt_project_selector.init();
+    tt_project_selector.load_project(TT_MIMPOA_PRJ);
 
     /* Initialize Parameters */
     flash.init();

@@ -34,27 +34,28 @@ There are only few tests and only for the msg_parser module. This is a typical p
 
 A STM32G474RETx in an LQFP64 package is used, with the following pin assignment. 26 of the pins are used to track the state of all in- and outputs of the Mimosa ASIC.
 
-| Pin  | Fct         | Pin  | Fct           | Pin  | Fct            | Pin  | Fct  | 
-|----  | ----------- | ---- | ------------- | ---- | -------------- | ---- | ---- |
-| PA0  | EXTI, M clk | PB0  | Inp, UI_IN[0] | PC0  | Inp, UO_OUT[0] | PF0  |      |
-| PA1  | Inp, M-NRST | PB1  | Inp, UI_IN[1] | PC1  | Inp, UO_OUT[1] | PF1  |      |
-| PA2  | LPUART1 TX  | PB2  | Inp, UI_IN[2] | PC2  | Inp, UO_OUT[2] | PG10 | NRST |
-| PA3  | LPUART1 RX  | PB3  | Inp, UI_IN[3] | PC3  | Inp, UO_OUT[3] |      |      |
-| PA4  | Out, M-NRST | PB4  | Inp, UI_IN[4] | PC4  | Inp, UO_OUT[4] |      |      |
-| PA5  | PWM 0       | PB5  | Inp, UI_IN[5] | PC5  | Inp, UO_OUT[5] |      |      |
-| PA6  | PWM 1       | PB6  | Inp, UI_IN[6] | PC6  | Inp, UO_OUT[6] |      |      |
-| PA7  | PWM 2       | PB7  | Inp, UI_IN[7] | PC7  | Inp, UO_OUT[7] |      |      | 
-| PA8  | I2C2 SDA    | PB8  | Boot-0        | PC8  | Inp, UIO[0]    |      |      | 
-| PA9  | I2C2 SCL    | PB9  | Out, Clk      | PC9  | Inp, UIO[1]    |      |      |
-| PA10 | PWM 3       | PB10 | USART3 TX     | PC10 | Inp, UIO[2]    |      |      |
-| PA11 | PWM 4       | PB11 | USART3 RX     | PC11 | Inp, UIO[3]    |      |      |
-| PA12 | PWM 5       | PB12 | FRAM CS       | PC12 | Inp, UIO[4]    |      |      |
-| PA13 | SWDIO       | PB13 | SPI2 SCK      | PC13 | Inp, UIO[5]    |      |      |
-| PA14 | SWCLK       | PB14 | SPI2 MISO     | PC14 | Inp, UIO[6]    |      |      |
-| PA15 |             | PB15 | SPI2 MOSI     | PC15 | Inp, UIO[7]    |      |      |
+| Pin  | Fct         | Pin  | Fct           | Pin  | Fct            | Pin  | Fct            | 
+|----  | ----------- | ---- | ------------- | ---- | -------------- | ---- | -------------- |
+| PA0  | EXTI, M clk | PB0  | Inp, UI_IN[0] | PC0  | Inp, UO_OUT[0] | PF0  | TT_SEL_RST_N   |
+| PA1  | Inp, M-NRST | PB1  | Inp, UI_IN[1] | PC1  | Inp, UO_OUT[1] | PF1  | TT_SEL_INC_PIN |
+| PA2  | LPUART1 TX  | PB2  | Inp, UI_IN[2] | PC2  | Inp, UO_OUT[2] | PG10 | NRST           |
+| PA3  | LPUART1 RX  | PB3  | Inp, UI_IN[3] | PC3  | Inp, UO_OUT[3] |      |                |
+| PA4  | Out, M-NRST | PB4  | Inp, UI_IN[4] | PC4  | Inp, UO_OUT[4] |      |                |
+| PA5  | PWM 0       | PB5  | Inp, UI_IN[5] | PC5  | Inp, UO_OUT[5] |      |                |
+| PA6  | PWM 1       | PB6  | Inp, UI_IN[6] | PC6  | Inp, UO_OUT[6] |      |                |
+| PA7  | PWM 2       | PB7  | Inp, UI_IN[7] | PC7  | Inp, UO_OUT[7] |      |                | 
+| PA8  | I2C2 SDA    | PB8  | Boot-0        | PC8  | Inp, UIO[0]    |      |                | 
+| PA9  | I2C2 SCL    | PB9  | Out, Clk      | PC9  | Inp, UIO[1]    |      |                |
+| PA10 | PWM 3       | PB10 | USART3 TX     | PC10 | Inp, UIO[2]    |      |                |
+| PA11 | PWM 4       | PB11 | USART3 RX     | PC11 | Inp, UIO[3]    |      |                |
+| PA12 | PWM 5       | PB12 | FRAM CS       | PC12 | Inp, UIO[4]    |      |                |
+| PA13 | SWDIO       | PB13 | SPI2 SCK      | PC13 | Inp, UIO[5]    |      |                |
+| PA14 | SWCLK       | PB14 | SPI2 MISO     | PC14 | Inp, UIO[6]    |      |                |
+| PA15 | TT_SEL_EN   | PB15 | SPI2 MOSI     | PC15 | Inp, UIO[7]    |      |                |
 
 Brief description of several key peripherals:
 
+- **TT_SEL_RST_N, TT_SEL_INC, TT_SEL_EN**: On the tiny-tapeout ASICs, all projects for the corresponding tapeout are on each chip, of course. You have to select the project that should run (i.e. that should be routed to and from the in- and output pins). There is a simple [three-pin interface](https://raw.githubusercontent.com/TinyTapeout/tt-multiplexer/main/docs/diagrams/mux_select_addr_12.png). You basically send 42 pulses if you want to load project number 42.
 - **EXTI, M-clk:** A state change of the model clock (prescaled ASIC input clock) triggers an update of the pin observer. All the ASIC pins are read and sent to the host computer via LPUART1.
 - **PWM0-5:** These signals correspond to pwm-ed outputs that are fed into a low-pass RC filter, defining the comparator levels. They thus define cold, hot, quiet, loud, dark and bright.
 - **I2C2:** Used for accessing the LCD display. The UART data from the ASIC is presented on the LCD. It turned out to be too space-consuming, letting the ASIC directly print to the LCD. We thus need the MCU to display the UART messages from the ASIC on the display.
